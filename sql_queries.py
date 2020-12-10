@@ -136,12 +136,12 @@ staging_songs_copy = ("""
 # FINAL TABLES
 songplay_table_insert = ("""
                             INSERT INTO songplay (
-                                start_time PRIMARY KEY, 
-                                user_id NOT NULL, 
+                                start_time, 
+                                user_id, 
                                 level, 
-                                song_id NOT NULL, 
-                                artist_id NOT NULL, 
-                                session_id NOT NULL, 
+                                song_id, 
+                                artist_id, 
+                                session_id, 
                                 location, 
                                 user_agent)
                             SELECT 
@@ -179,6 +179,7 @@ user_table_insert = ("""
                             gender,
                             level 
                         FROM staging_events
+                        WHERE page = 'NextSong';
 """)
 
 song_table_insert = ("""
@@ -234,7 +235,8 @@ time_table_insert = ("""INSERT INTO time (
                             (SELECT 
                                 TIMESTAMP 'epoch' + ts/1000 *INTERVAL '1 second' as start_time 
                             FROM 
-                                staging_events);
+                                staging_events)
+                        WHERE page = 'NextSong';
 """)
 
 # QUERY LISTS
