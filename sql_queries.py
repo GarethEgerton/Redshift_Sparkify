@@ -16,51 +16,51 @@ time_table_drop = "DROP TABLE IF EXISTS time"
 # CREATE TABLES
 staging_events_table_create = ("""                 
                                 CREATE TABLE IF NOT EXISTS staging_events (
-                                    artist varchar,
-                                    auth varchar,
+                                    artist varchar NOT NULL,
+                                    auth varchar NOT NULL,
                                     firstName varchar, 
                                     gender varchar(1), 
-                                    itemInSession int,
+                                    itemInSession int NOT NULL,
                                     lastName varchar,
-                                    length float,
-                                    level varchar,
+                                    length float NOT NULL,
+                                    level varchar NOT NULL,
                                     location varchar,
                                     method varchar(8),
-                                    page varchar,
+                                    page varchar NOT NULL,
                                     registration int8,
-                                    sessionId int,
-                                    song varchar,
+                                    sessionId int NOT NULL,
+                                    song varchar NOT NULL,
                                     status int,
-                                    ts bigint,
+                                    ts bigint NOT NULL,
                                     useragent varchar,
-                                    userId int
+                                    userId int NOT NULL
                                 );
 """)
 
 staging_songs_table_create = ("""
                                 CREATE TABLE IF NOT EXISTS staging_songs (
-                                    artist_id varchar,
+                                    artist_id varchar NOT NULL,
                                     artist_latitude float,
                                     artist_location varchar,
                                     artist_longitude float,
-                                    artist_name varchar,
-                                    duration float,
+                                    artist_name varchar NOT NULL,
+                                    duration float NOT NULL,
                                     num_songs int,
-                                    song_id varchar,
-                                    title varchar,
-                                    year int
+                                    song_id varchar NOT NULL,
+                                    title varchar NOT NULL,
+                                    year int NOT NULL
                                     );
 """)
 
 songplay_table_create = ("""
                             CREATE TABLE IF NOT EXISTS songplay (
                                 songplay_id INT IDENTITY(0,1) PRIMARY KEY, 
-                                start_time timestamp, 
-                                user_id int, 
+                                start_time timestamp NOT NULL, 
+                                user_id int NOT NULL, 
                                 level varchar, 
-                                song_id varchar, 
-                                artist_id varchar, 
-                                session_id int, 
+                                song_id varchar NOT NULL, 
+                                artist_id varchar NOT NULL, 
+                                session_id int NOT NULL, 
                                 location varchar, 
                                 user_agent varchar
                                 );
@@ -68,7 +68,7 @@ songplay_table_create = ("""
 
 user_table_create = ("""
                         CREATE TABLE IF NOT EXISTS users (
-                            user_id int, 
+                            user_id INT PRIMARY KEY, 
                             first_name varchar, 
                             last_name varchar, 
                             gender varchar(1), 
@@ -78,18 +78,18 @@ user_table_create = ("""
 
 song_table_create = ("""
                         CREATE TABLE IF NOT EXISTS song (
-                            song_id varchar, 
-                            title varchar, 
-                            artist_id varchar, 
-                            year int, 
-                            duration float
+                            song_id varchar PRIMARY KEY, 
+                            title varchar NOT NULL, 
+                            artist_id varchar NOT NULL, 
+                            year int NOT NULL, 
+                            duration float NOT NULL
                         );
 """)
 
 artist_table_create = ("""
                             CREATE TABLE IF NOT EXISTS artist (
-                                artist_id varchar, 
-                                name varchar, 
+                                artist_id varchar PRIMARY KEY, 
+                                name varchar NOT NULL, 
                                 location varchar, 
                                 latitude float, 
                                 longitude float
@@ -98,13 +98,13 @@ artist_table_create = ("""
 
 time_table_create = ("""
                         CREATE TABLE IF NOT EXISTS time (
-                            start_time timestamp, 
-                            hour int, 
-                            day int, 
-                            week int, 
-                            month int, 
-                            year int, 
-                            weekday int
+                            start_time timestamp PRIMARY KEY, 
+                            hour int NOT NULL, 
+                            day int NOT NULL, 
+                            week int NOT NULL, 
+                            month int NOT NULL, 
+                            year int NOT NULL, 
+                            weekday in NOT NULL
                         );
 """)
 
@@ -136,12 +136,12 @@ staging_songs_copy = ("""
 # FINAL TABLES
 songplay_table_insert = ("""
                             INSERT INTO songplay (
-                                start_time, 
-                                user_id, 
+                                start_time PRIMARY KEY, 
+                                user_id NOT NULL, 
                                 level, 
-                                song_id, 
-                                artist_id, 
-                                session_id, 
+                                song_id NOT NULL, 
+                                artist_id NOT NULL, 
+                                session_id NOT NULL, 
                                 location, 
                                 user_agent)
                             SELECT 
@@ -158,7 +158,9 @@ songplay_table_insert = ("""
                             JOIN staging_songs s
                                 ON (e.song = s.title
                                      AND
-                                    e.artist = s.artist_name)
+                                    e.artist = s.artist_name
+                                     and
+                                    s.duration = e.length)
                             WHERE page = 'NextSong'
 """)
 
@@ -203,7 +205,7 @@ artist_table_insert = ("""
                             location, 
                             latitude, 
                             longitude)
-                        SELECT
+                        SELECT DISTINCT
                             artist_id,
                             artist_name, 
                             artist_location,
@@ -221,7 +223,7 @@ time_table_insert = ("""INSERT INTO time (
                             month, 
                             year, 
                             weekday)
-                        SELECT start_time,
+                        SELECT DISTINCT start_time,
                             EXTRACT (HOUR FROM start_time), 
                             EXTRACT (DAY FROM start_time),
                             EXTRACT (WEEK FROM start_time), 

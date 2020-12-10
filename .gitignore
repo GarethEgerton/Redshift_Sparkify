@@ -1,4 +1,6 @@
 *.cfg
 *.ipynb
 .ipynb_checkpoints
-__pycache
+*/.ipynb_checkpoints/*
+Folder/.ipynb_checkpoints/*.ipynb
+__pycache__
